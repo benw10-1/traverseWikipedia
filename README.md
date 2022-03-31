@@ -1,6 +1,9 @@
 # Traverse Wikipeida
 A simple tool for building relational graphs of arbitrary Wikipedia pages. Page x is related to page y if page x has link y in its text. I use the Wikimedia API to get this information.
 
+## Usage
+Search a Wikipedia page name in the top search bar and wait for the pages to load.
+
 ## Future features
 -Create massive database with preprocessed page traversion.<br>
 -Add NLP relationships (find relationship in link sentence)<br>
