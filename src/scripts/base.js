@@ -15,6 +15,10 @@ function loadEls() {
 
     loadVisual()
 
+    document.getElementsByClassName(".gh")[0].addEventListener("click", event => {
+        window.open("https://github.com/benw10-1/traverseWikipedia")
+    })
+
     search.addEventListener("input", event => {
         if (!search.value) {
             autocomp.innerHTML = ""
@@ -118,12 +122,12 @@ function pageRoot(page, opt) {
                     color: colorScheme[depth % colorScheme.length]
                 })
             }
-            
             links.push({
                 source: root,
                 target: item,
                 value: depth
             })
+            
             visited.add(item)
             
             if (depth < opt.maxDepth) {
@@ -140,7 +144,7 @@ function pageRoot(page, opt) {
         }
         
         loading = false
-
+        // console.log(nodes)
         res(result)
     })
 }

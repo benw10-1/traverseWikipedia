@@ -11,6 +11,15 @@
     width: 100%;
 }
 
+.gh {
+    position: absolute;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    z-index: 5;
+    padding: 25px 25px 0 0;
+}
+
 #autocomplete {
     position: absolute;
     display: flex;
