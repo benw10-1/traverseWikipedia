@@ -6,6 +6,7 @@ A simple tool for building relational graphs of arbitrary Wikipedia pages. Page 
 -Add NLP relationships (find relationship in link sentance)<br>
 -Make graph more customizable (change depth, max child nodes, colors...)<br>
 -More interactive map and able to search page from map node
+-Better resolve if link is redirect
 
 ## Page
 Visit the [page!](https://benw10-1.github.io/traverseWikipedia/)
