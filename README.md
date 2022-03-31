@@ -3,7 +3,7 @@ A simple tool for building relational graphs of arbitrary Wikipedia pages. Page 
 
 ## Future features
 -Create massive database with preprocessed page traversion.<br>
--Add NLP relationships (find relationship in link sentance)<br>
+-Add NLP relationships (find relationship in link sentence)<br>
 -Make graph more customizable (change depth, max child nodes, colors...)<br>
 -More interactive map and able to search page from map node
 -Better resolve if link is redirect
