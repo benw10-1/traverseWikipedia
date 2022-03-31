@@ -1,3 +1,5 @@
+var search, autocomp, loading, Graph
+
 const titleRegex = /[:]|(Category)/
 const colorScheme = ["#E63946", "#1D3557", "#A8DADC"]
 const keysExp = /(Backspace)|(Escape)|(Control)|\s/
@@ -9,61 +11,100 @@ const delay = (ms) => {
 
 function loadEls() {
     search = document.getElementById("search")
+    autocomp = document.getElementById("autocomplete")
 
-    search.addEventListener("keypress", event => {
-        autocomplete(search.value + (event.key.match(keysExp) ? "" :event.key))
+    loadVisual()
+
+    search.addEventListener("input", event => {
+        if (!search.value) {
+            autocomp.innerHTML = ""
+            return
+        }
+        autocomplete(search.value).then(data => {
+            autocomp.innerHTML = ""
+            for (let i=0; (i < data[1].length) && (i < 5); i++) {
+                let entry = document.createElement("div")
+                entry.className = "entry"
+                entry.innerHTML = data[1][i]
+
+                entry.addEventListener("click", (event) => {
+                    search.value = event.target.innerHTML
+                    autocomp.innerHTML = ""
+                    pageRoot(search.value).then(data => {
+                        drawData(data)
+                    })
+                })
+
+                autocomp.appendChild(entry)
+            }
+        })
+    })
+    search.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            autocomp.innerHTML = ""
+            pageRoot(search.value.trim()).then(data => {
+                if (!data) return
+                drawData(data)
+            })
+        }
+    })
+    window.addEventListener("click", event => {
+        if (event.target.className !== "entry" && event.target.tagName !== "INPUT") {
+            autocomp.innerHTML = ""
+        }
     })
 }
 
-function processPageWiki(page, depth=0) {
+function processPageWiki(page, depth=0, maxLinks=500) {
     const link = "https://en.wikipedia.org/w/api.php?" + new URLSearchParams({
         origin: "*",
-        action: "parse",
-        page: page,
+        action: "query",
+        titles: page,
         format: "json",
-        prop: "text|links",
-        // redirects: true
+        prop: "links",
+        pllimit: maxLinks,
     })
     return fetch(link).then(data => data.json()).then(data => {
-        if (!data || !data.parse || !data.parse.links || !data.parse.title) {
-            data.parse = {
-                links: [],
-                title: page
-            }
+        const pages = data.query.pages
+        if (pages["-1"]) return {
+            links: [],
+            title: page
         }
-        console.log(data.parse.iwlinks, data.parse.links)
-        data.parse.links = data.parse.links.filter(e => !e["*"].match(titleRegex)).map(e => {
-            return [e["*"], depth + 1, data.parse.title]
+        let sl = pages[Object.keys(data.query.pages)[0]]
+        sl.links = sl.links.filter(e => !e.title.match(titleRegex)).map(e => {
+            return [e.title, depth + 1, sl.title]
         })
-        return data.parse
+        return sl
     }).catch((err) => console.log(err))
 }
 
 function pageRoot(page, opt) {
+    if (loading) return new Promise((res) => res())
+    loading = true
     // default opt
     opt = {
         maxDepth: 2,
-        maxNodes: 20000,
+        maxNodes: 500,
         childMax: 10,
     }
-    let visited = new Set()
-    let urls = new Set()
-
     return new Promise(async (res) => {
+        let autocomp = await autocomplete(page)
+        if (!autocomp || !autocomp[1] || autocomp[1].length < 1) return 
         let data = await processPageWiki(page)
-        if (!data || !data.title || !data.links || data.links.length === 0) return {
-            nodes: [],
-            links: []
+        if (!data || !data.title || !data.links || data.links.length === 0) {
+            res() //await getDefault()
+            return
         }
         var toProcess = data.links
-        await delay(50)
-        // console.log(...toProcess)
         var nodes = [{
             id: data.title,
             group: 0,
             color: colorScheme[0]
         }], links = []
         var promises = 0
+        let visited = new Set()
+        visited.add(data.title)
+
         while ((toProcess.length > 0) || promises > 0) {
             if (toProcess.length === 0) {
                 await delay(200)
@@ -77,38 +118,40 @@ function pageRoot(page, opt) {
                     color: colorScheme[depth % colorScheme.length]
                 })
             }
-            visited.add(item)
+            
             links.push({
                 source: root,
                 target: item,
                 value: depth
             })
+            visited.add(item)
             
             if (depth < opt.maxDepth) {
                 promises += 1
-                console.log(item, depth)
-                processPageWiki(item, depth).then(innerDat => {
-                    innerDat.links = innerDat.links.slice(0, opt.childMax)
+                processPageWiki(item, depth, opt.childMax).then(innerDat => {
                     toProcess.push(...innerDat.links)
-                }).then(_ => {
                     promises -= 1
                 })
             }
         }
         let result = {
-            nodes: nodes,
-            links: links
+            links: links,
+            nodes: nodes
         }
+        
+        loading = false
+
         res(result)
     })
 }
 
-function loadVisual(obj) {
+function drawData(obj) {
     if (typeof obj === "string") obj = JSON.parse(obj)
+    Graph.graphData(obj)
+}
 
-    const Graph = ForceGraph()
-    (document.getElementById('graph'))
-    .graphData(obj)
+function loadVisual() {
+    Graph = ForceGraph()(document.getElementById('graph'))
     .nodeId('id')
     .nodeVal('val')
     .nodeLabel('id')

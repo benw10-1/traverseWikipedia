@@ -1,11 +1,38 @@
-
-
 .search-cont {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px 0;
+    position: relative;
+}
+
+#search {
+    width: 100%;
+}
+
+#autocomplete {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 75%;
+    width: 300px;
+    overflow-x: hidden;
+    z-index: 2;
+}
+.entry {
+    background-color: grey;
+    color: white;
+    text-align: center;
+    width: 100%;
+    padding: 5px 0;
+    border-top: 2px black solid;
+    transition: all .3s ease;
+}
+.entry:hover {
+    background-color: white;
+    color: gray;
+    cursor: pointer;
 }
 
 input {
