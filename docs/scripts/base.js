@@ -81,7 +81,7 @@ function loadEls() {
             autocomp.innerHTML = ""
         }
         // messy but cases for hiding instructions
-        if (!event.target.classList.contains("inst-cont") && !event.target.parentElement.classList.contains("inst-cont") && !event.target.classList.contains("instructions")) {
+        if (event.target.tagName !== "DIV" || event.target.className === "search-cont") {
             isnt.classList.add("hidden")
         }
     })
@@ -134,7 +134,7 @@ function log(text, error, tm=1000) {
         logger.classList.add("fading")
     }, tm)
 }
-
+// root for top-down traversal
 function pageRoot(page, opt) {
     // if already loading escape
     if (loading) return new Promise((res) => res())
@@ -157,7 +157,11 @@ function pageRoot(page, opt) {
     return new Promise(async (res) => {
         // CAN MAYBE BE OMMITTED | check autocomplete to verify page
         let autocomp = await autocomplete(page)
-        if (!autocomp || !autocomp[1] || autocomp[1].length < 1) return
+        if (!autocomp || !autocomp[1] || autocomp[1].length < 1) {
+            loading = false
+            res()
+            return
+        }
         let data = await processPageWiki(page)
         // if not correct information escape and resolve promise
         if (!data || !data.title || !data.links || data.links.length === 0) {
