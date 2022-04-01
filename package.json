@@ -16,5 +16,8 @@
     "node-fetch": "^2.6.7",
     "wink-eng-lite-web-model": "^1.4.0",
     "wink-nlp": "^1.11.0"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
