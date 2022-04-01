@@ -156,6 +156,7 @@ input {
     display: flex;
     flex-direction: column;
     top: 110%;
+    left: -50%;
     position: absolute;
     white-space: nowrap;
     line-height: 1.3;
