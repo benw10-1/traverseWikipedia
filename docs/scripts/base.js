@@ -19,7 +19,7 @@ function loadEls() {
     document.querySelector("div.instructions").addEventListener("click", event => {
         isnt.classList.toggle("hidden")
     })
-
+    
     loadVisual()
 
     search.addEventListener("input", event => {
@@ -86,6 +86,7 @@ function processPageWiki(page, depth=0, maxLinks=500) {
         sl.links = sl.links.filter(e => !e.title.match(titleRegex)).map(e => {
             return [e.title, depth + 1, sl.title]
         })
+        if (!sl.links || sl.links.length < 3) sl.canOmit
         return sl
     }).catch((err) => {log(err, true, 2000)})
 }
@@ -129,15 +130,15 @@ function pageRoot(page, opt) {
             data = await processPageWiki(data.links[0])
         }
         
-        var toProcess = data.links.slice(0, opt.maxInitial)
-        var nodes = [{
+        let toProcess = data.links.slice(0, opt.maxInitial)
+        let nodes = [{
             id: data.title,
             group: 0,
             color: colorScheme[0],
             nH: [],
             lH: [],
         }], links = []
-        var promises = 0
+        let promises = 0
         let visited = {}
         visited[data.title] = {
             nodes: [],
@@ -177,7 +178,11 @@ function pageRoot(page, opt) {
             }
             if (depth < opt.maxDepth) {
                 promises += 1
-                processPageWiki(item, depth, opt.childMax).then(innerDat => {
+                processPageWiki(item, depth, opt.childMax, opt.maxNodes).then(innerDat => {
+                    if (innerDat.canOmit && nodes.length >= opt.maxNodes) {
+                        promises -= 1
+                        return
+                    }
                     if (innerDat && innerDat.links) toProcess.push(...innerDat.links)
                     promises -= 1
                 })
@@ -204,6 +209,7 @@ function drawData(obj) {
     const hN = new Set()
     let first = true
     Graph.graphData(obj)
+    .enableZoomInteraction(false)
     .nodeRelSize(NODE_R)
     .enableNodeDrag(false)
     .onNodeHover(node => {
@@ -231,12 +237,13 @@ function drawData(obj) {
         ctx.fill()
     })
     .cooldownTicks(100)
+    .cooldownTime(10000)
     Graph.onEngineStop(() => {
         if (first) {
             first = false 
             Graph.zoomToFit(500)
         }
-        Graph.enableNodeDrag(true)
+        Graph.enableNodeDrag(true).enableZoomInteraction(true)
     })
     log("Successfully graphed data!")
 }
