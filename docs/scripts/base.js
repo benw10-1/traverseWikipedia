@@ -1,6 +1,6 @@
 var search, autocomp, loading, Graph, graphEl, logger, logtm, isnt
 
-const titleRegex = /[:]|(Category)|(\.[a-z]+)/
+const titleRegex = /[:]|(Category)|(\.[a-z]+)|([,][0-9])+/
 const colorScheme = ["#E63946", "#1D3557", "#A8DADC", "#F1FAEE"]
 const keysExp = /(Backspace)|(Escape)|(Control)|\s/
 const delay = (ms) => {
