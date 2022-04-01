@@ -8,7 +8,7 @@ Search a Wikipedia page name in the top search bar and wait for the pages to loa
 -Create massive database with preprocessed page traversion.<br>
 -Add NLP relationships (find relationship in link sentence)<br>
 -Make graph more customizable (change depth, max child nodes, colors...)<br>
--More interactive map and able to search page from map node
+-More interactive map and able to search page from map node<br>
 -Better resolve if link is redirect
 
 ## Page
