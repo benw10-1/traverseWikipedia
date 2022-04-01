@@ -48,8 +48,6 @@ canvas {
     width: 50px;
     height: 50px;
     z-index: 5;
-}
-.gh image {
     cursor: pointer;
 }
 
