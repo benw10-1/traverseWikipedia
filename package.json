@@ -4,8 +4,7 @@
   "description": "Neo4J graph model of wikepedia page relations",
   "main": "server.js",
   "scripts": {
-    "test": "test",
-    "seed": "node ./autoComplete/seedSQL.js"
+    "test": "test"
   },
   "author": "Ben Wirth",
   "license": "ISC",
