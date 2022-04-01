@@ -1,7 +1,7 @@
-var search, autocomp, loading, Graph
+var search, autocomp, loading, Graph, graphEl
 
 const titleRegex = /[:]|(Category)/
-const colorScheme = ["#E63946", "#1D3557", "#A8DADC"]
+const colorScheme = ["#E63946", "#1D3557", "#A8DADC", "#F1FAEE"]
 const keysExp = /(Backspace)|(Escape)|(Control)|\s/
 const delay = (ms) => {
     return new Promise((res) => {
@@ -12,12 +12,8 @@ const delay = (ms) => {
 function loadEls() {
     search = document.getElementById("search")
     autocomp = document.getElementById("autocomplete")
-
+    graphEl = document.getElementById("graph")
     loadVisual()
-
-    document.getElementsByClassName(".gh")[0].addEventListener("click", event => {
-        window.open("https://github.com/benw10-1/traverseWikipedia")
-    })
 
     search.addEventListener("input", event => {
         if (!search.value) {
@@ -46,6 +42,7 @@ function loadEls() {
     search.addEventListener("keypress", (event) => {
         if (event.key === "Enter") {
             autocomp.innerHTML = ""
+            search.blur()
             pageRoot(search.value.trim()).then(data => {
                 if (!data) return
                 drawData(data)
@@ -79,7 +76,7 @@ function processPageWiki(page, depth=0, maxLinks=500) {
             return [e.title, depth + 1, sl.title]
         })
         return sl
-    }).catch((err) => console.log(err))
+    }).catch((err) => err)
 }
 
 function pageRoot(page, opt) {
@@ -88,52 +85,74 @@ function pageRoot(page, opt) {
     // default opt
     opt = {
         maxDepth: 2,
-        maxNodes: 500,
+        maxNodes: 1100,
+        maxInitial: 1000,
         childMax: 10,
+        directed: true
     }
     return new Promise(async (res) => {
         let autocomp = await autocomplete(page)
         if (!autocomp || !autocomp[1] || autocomp[1].length < 1) return 
         let data = await processPageWiki(page)
         if (!data || !data.title || !data.links || data.links.length === 0) {
+            loading = false
             res() //await getDefault()
             return
         }
-        var toProcess = data.links
+        if (data.links.length === 1) {
+            data = await processPageWiki(data.links[0])
+        }
+        
+        var toProcess = data.links.slice(0, opt.maxInitial)
         var nodes = [{
             id: data.title,
             group: 0,
-            color: colorScheme[0]
+            color: colorScheme[0],
+            nH: [],
+            lH: [],
         }], links = []
         var promises = 0
-        let visited = new Set()
-        visited.add(data.title)
+        let visited = {}
+        visited[data.title] = {
+            nodes: [],
+            links: []
+        }
 
         while ((toProcess.length > 0) || promises > 0) {
-            if (toProcess.length === 0) {
+            if (toProcess.length === 0 || promises > 100) {
                 await delay(200)
                 continue
             }
             let [item, depth, root] = toProcess.pop()
-            if (!visited.has(item)) {
-                nodes.push({
-                    id: item,
-                    group: depth,
-                    color: colorScheme[depth % colorScheme.length]
-                })
-            }
-            links.push({
+            let link = {
                 source: root,
                 target: item,
                 value: depth
-            })
-            
-            visited.add(item)
-            
+            }, node = {
+                id: item,
+                group: depth,
+                color: colorScheme[depth % colorScheme.length],
+                mp: data.title
+            }
+            let found = visited[item]
+            if (!found) {
+                nodes.push(node)
+                links.push(link)
+                visited[item] = {}
+                if (visited[root]) {
+                    visited[item].nodes = [node, ...visited[root].nodes]
+                    visited[item].links = [link, ...visited[root].links]
+                    node.lH = visited[item].links
+                    node.nH = visited[item].nodes
+                }
+            }
+            else if (!opt.directed) {
+                links.push(link)
+            }
             if (depth < opt.maxDepth) {
                 promises += 1
                 processPageWiki(item, depth, opt.childMax).then(innerDat => {
-                    toProcess.push(...innerDat.links)
+                    if (innerDat && innerDat.links) toProcess.push(...innerDat.links)
                     promises -= 1
                 })
             }
@@ -144,21 +163,85 @@ function pageRoot(page, opt) {
         }
         
         loading = false
-        // console.log(nodes)
+        if (opt.directed){ 
+            Graph.linkDirectionalArrowLength(6)
+        }
+
         res(result)
     })
 }
 
 function drawData(obj) {
     if (typeof obj === "string") obj = JSON.parse(obj)
+    const NODE_R = 8
+    const hL = new Set()
+    const hN = new Set()
+    let first = true
     Graph.graphData(obj)
-}
+    .nodeRelSize(NODE_R)
+    .onNodeHover(node => {
+        hN.clear()
+        hL.clear()
+        graphEl.style.cursor = ""
+        if (node) {
+            graphEl.style.cursor = "pointer"
+            hN.add(node)
+            node.nH.forEach(n => hN.add(n))
+            node.lH.forEach(l => hL.add(l))
+        }
 
+        hoverNode = node || null
+    })
+    .autoPauseRedraw(false) // keep redrawing after engine has stopped
+    .linkWidth(link => hL.has(link) ? 6 : 1)
+    .linkDirectionalParticles(4)
+    .linkDirectionalParticleWidth(link => hL.has(link) ? 4 : 0)
+    .nodeCanvasObjectMode(node => hN.has(node) ? 'before' : undefined)
+    .nodeCanvasObject((node, ctx) => {
+        ctx.beginPath()
+        ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false)
+        ctx.fillStyle = node === hoverNode ? 'red' : 'orange'
+        ctx.fill()
+    })
+    .cooldownTicks(100)
+    Graph.onEngineStop(() => {
+        if (first) {
+            first = false 
+            Graph.zoomToFit(500)
+        }
+    })
+}
+// https://en.wikipedia.org/wiki/
 function loadVisual() {
     Graph = ForceGraph()(document.getElementById('graph'))
     .nodeId('id')
     .nodeVal('val')
-    .nodeLabel('id')
+    .nodeLabel(node => {
+        let cont = document.createElement("div")
+        let pt = [node.mp, ...node.nH.map(e => e.id).reverse()].join(" 🡒 ")
+        let h1 = document.createElement("h1")
+        h1.innerHTML = node.id
+        h1.style.fontSize = "larger"
+        h1.style.fontWeight = "bolder"
+        // h1.style.color = "#E63946"
+        cont.appendChild(h1)
+        if (pt) {
+            let sp = document.createElement("span")
+            sp.style.display = "block"
+            // sp.style.fontWeight = "bolder"
+            sp.innerHTML = pt
+            cont.appendChild(sp)
+        }
+
+        // cont.innerHTML += "<span style='font-weight:lighter;'>Click on the node to visit the page!</span>"
+        
+        return cont.innerHTML
+    })
     .linkSource('source')
     .linkTarget('target')
+
+    window.addEventListener("resize", (event) => {
+        Graph.height(window.innerHeight)
+        Graph.width(window.innerWidth)
+    })
 }

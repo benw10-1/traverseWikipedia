@@ -4,11 +4,18 @@
     justify-content: center;
     align-items: center;
     padding: 20px 0;
-    position: relative;
+    position: absolute;
+    background-color: transparent;
+    z-index: 1;
 }
 
 #search {
-    width: 100%;
+    width: 600px;
+    background-color: #F1FAEE;
+}
+
+canvas {
+    background-color: #F1FAEE;
 }
 
 .gh {
@@ -19,6 +26,9 @@
     z-index: 5;
     padding: 25px 25px 0 0;
 }
+.gh image {
+    cursor: pointer;
+}
 
 #autocomplete {
     position: absolute;
@@ -27,11 +37,13 @@
     top: 75%;
     width: 300px;
     overflow-x: hidden;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
     z-index: 2;
 }
 .entry {
-    background-color: grey;
-    color: white;
+    background-color: #464655;
+    color: #F1FAEE;
     text-align: center;
     width: 100%;
     padding: 5px 0;
@@ -39,8 +51,8 @@
     transition: all .3s ease;
 }
 .entry:hover {
-    background-color: white;
-    color: gray;
+    background-color: transparent;
+    color: #464655;
     cursor: pointer;
 }
 
@@ -58,3 +70,9 @@ input {
     flex-direction: column;
     overflow: hidden;
 }
+.force-graph-container .graph-tooltip {
+    font-weight: bolder;
+    padding: .5em;
+    line-height: 1.3;
+}
+  
