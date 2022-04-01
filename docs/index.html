@@ -5,32 +5,34 @@
     <title>Traverse Wikipedia</title>
 
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
-
+    
     <script src="//unpkg.com/force-graph"></script>
 
     <link href="style/reset.css" rel="stylesheet"/>
     <link href="style/style.css" rel="stylesheet"/>
+    <!-- fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter&family=Lato&display=swap" rel="stylesheet">
     
-
-    <script src="scripts/autoComplete.js"></script>
     <script src="scripts/base.js"></script>
     <script src="scripts/main.js"></script>
 </head>
 <body>
     <div class="main">
+        <!-- Anchor for absolute positioned elements -->
         <div class="search-cont">
             <div class="gh">
                 <img src="images/github.png" width="50" height="50" onclick="(window.open('https://github.com/benw10-1/traverseWikipedia'))">
             </div>
             <div class="search-auto">
                 <input type="text" name="search" id="search" placeholder="Search Wikipedia page here..." autocomplete="off">
+                <!-- Anchor for absolute positioned elements -->
                 <div class="auto-anchor">
                     <div id="autocomplete"></div>
                 </div>
             </div>
+            <!-- Anchor for absolute positioned elements -->
             <div class="inst-anchor">
                 <div class="instructions">Instructions</div>
                 <div class="inst-cont hidden">
@@ -55,6 +57,7 @@
                 <div id="log"></div>
             </div>
         </div>
+        <!-- Graph container  -->
         <div id="graph"></div>
     </div>
 </body>
