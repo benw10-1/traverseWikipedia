@@ -1,0 +1,21 @@
+{
+  "name": "wikipedia_traverser",
+  "version": "1.0.0",
+  "description": "Neo4J graph model of wikepedia page relations",
+  "main": "server.js",
+  "scripts": {
+    "test": "test",
+    "seed": "node ./autoComplete/seedSQL.js"
+  },
+  "author": "Ben Wirth",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "jsdom": "^19.0.0",
+    "mysql": "^2.18.1",
+    "node-fetch": "^2.6.7",
+    "wink-eng-lite-web-model": "^1.4.0",
+    "wink-nlp": "^1.11.0"
+  }
+}
