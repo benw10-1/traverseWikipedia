@@ -10,6 +10,9 @@
 
     <link href="style/reset.css" rel="stylesheet"/>
     <link href="style/style.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&family=Lato&display=swap" rel="stylesheet">
     
 
     <script src="scripts/autoComplete.js"></script>
@@ -17,13 +20,40 @@
     <script src="scripts/main.js"></script>
 </head>
 <body>
-    <div class="gh">
-        <img src="images/github.png" width="50" height="50" onclick="(window.open('https://github.com/benw10-1/traverseWikipedia'))">
-    </div>
     <div class="main">
         <div class="search-cont">
-            <input type="text" name="search" id="search" placeholder="Search Wikipedia page here..." autocomplete="off">
-            <div id="autocomplete"></div>
+            <div class="gh">
+                <img src="images/github.png" width="50" height="50" onclick="(window.open('https://github.com/benw10-1/traverseWikipedia'))">
+            </div>
+            <div class="search-auto">
+                <input type="text" name="search" id="search" placeholder="Search Wikipedia page here..." autocomplete="off">
+                <div class="auto-anchor">
+                    <div id="autocomplete"></div>
+                </div>
+            </div>
+            <div class="inst-anchor">
+                <div class="instructions">Instructions</div>
+                <div class="inst-cont hidden">
+                    <div>Type in a Wikipedia page where it says "Search Wikipedia page here..."</div>
+                    <div>Hover over the circles to see the path you traversed</div>
+                    <div>Click on the circles to open that Wikipedia page</div>
+                    <div>Right click to start traversing at that page</div>
+                    <div class="color-cont">
+                        <div>
+                            <div class="color-circ red"></div>Origin
+                        </div>
+                        <div>
+                            <div class="color-circ blue"></div>Second layer
+                        </div>
+                        <div>
+                            <div class="color-circ lblue"></div>Any layer after (can be redirects)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="logger">
+                <div id="log"></div>
+            </div>
         </div>
         <div id="graph"></div>
     </div>

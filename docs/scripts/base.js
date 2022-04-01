@@ -1,6 +1,6 @@
-var search, autocomp, loading, Graph, graphEl
+var search, autocomp, loading, Graph, graphEl, logger, logtm, isnt
 
-const titleRegex = /[:]|(Category)/
+const titleRegex = /[:]|(Category)|(\.[a-z]+)/
 const colorScheme = ["#E63946", "#1D3557", "#A8DADC", "#F1FAEE"]
 const keysExp = /(Backspace)|(Escape)|(Control)|\s/
 const delay = (ms) => {
@@ -13,6 +13,13 @@ function loadEls() {
     search = document.getElementById("search")
     autocomp = document.getElementById("autocomplete")
     graphEl = document.getElementById("graph")
+    logger = document.getElementById("log")
+    isnt = document.querySelector(".inst-cont")
+
+    document.querySelector("div.instructions").addEventListener("click", event => {
+        isnt.classList.toggle("hidden")
+    })
+
     loadVisual()
 
     search.addEventListener("input", event => {
@@ -53,6 +60,9 @@ function loadEls() {
         if (event.target.className !== "entry" && event.target.tagName !== "INPUT") {
             autocomp.innerHTML = ""
         }
+        if (!event.target.classList.contains("inst-cont") && !event.target.classList.contains("instructions")) {
+            isnt.classList.add("hidden")
+        }
     })
 }
 
@@ -65,6 +75,7 @@ function processPageWiki(page, depth=0, maxLinks=500) {
         prop: "links",
         pllimit: maxLinks,
     })
+    log("Getting links for " + page)
     return fetch(link).then(data => data.json()).then(data => {
         const pages = data.query.pages
         if (pages["-1"]) return {
@@ -76,7 +87,18 @@ function processPageWiki(page, depth=0, maxLinks=500) {
             return [e.title, depth + 1, sl.title]
         })
         return sl
-    }).catch((err) => err)
+    }).catch((err) => {log(err, true, 2000)})
+}
+
+function log(text, error, tm=1000) {
+    logger.classList.remove("red")
+    if (error) logger.classList.add("red")
+    logger.innerHTML = text
+    logger.classList.remove("fading")
+    clearTimeout(logtm)
+    logtm = setTimeout(() => {
+        logger.classList.add("fading")
+    }, tm)
 }
 
 function pageRoot(page, opt) {
@@ -90,6 +112,10 @@ function pageRoot(page, opt) {
         childMax: 10,
         directed: true
     }
+    if (Graph) Graph.graphData({
+        nodes: [],
+        links: []
+    })
     return new Promise(async (res) => {
         let autocomp = await autocomplete(page)
         if (!autocomp || !autocomp[1] || autocomp[1].length < 1) return 
@@ -166,19 +192,20 @@ function pageRoot(page, opt) {
         if (opt.directed){ 
             Graph.linkDirectionalArrowLength(6)
         }
-
         res(result)
     })
 }
 
 function drawData(obj) {
     if (typeof obj === "string") obj = JSON.parse(obj)
+    log("Loading graph...")
     const NODE_R = 8
     const hL = new Set()
     const hN = new Set()
     let first = true
     Graph.graphData(obj)
     .nodeRelSize(NODE_R)
+    .enableNodeDrag(false)
     .onNodeHover(node => {
         hN.clear()
         hL.clear()
@@ -209,9 +236,11 @@ function drawData(obj) {
             first = false 
             Graph.zoomToFit(500)
         }
+        Graph.enableNodeDrag(true)
     })
+    log("Successfully graphed data!")
 }
-// https://en.wikipedia.org/wiki/
+
 function loadVisual() {
     Graph = ForceGraph()(document.getElementById('graph'))
     .nodeId('id')
@@ -239,6 +268,13 @@ function loadVisual() {
     })
     .linkSource('source')
     .linkTarget('target')
+    .onNodeClick(node => {
+        window.open("https://en.wikipedia.org/wiki/" + node.id)
+    })
+    .onNodeRightClick(node => {
+        search.value = node.id
+        pageRoot(node.id).then(data => drawData(data))
+    })
 
     window.addEventListener("resize", (event) => {
         Graph.height(window.innerHeight)
