@@ -1,6 +1,7 @@
 # Traverse Wikipeida
 A simple tool for building relational graphs of arbitrary Wikipedia pages. Page x is related to page y if page x has link y in its text. I use the Wikimedia API to get this information.
 
+Visit the [page!](https://benw10-1.github.io/traverseWikipedia/)
 ## Usage
 Search a Wikipedia page name in the top search bar and wait for the pages to load.
 
@@ -11,5 +12,4 @@ Search a Wikipedia page name in the top search bar and wait for the pages to loa
 -More interactive map and able to search page from map node<br>
 -Better resolve if link is redirect
 
-## Page
-Visit the [page!](https://benw10-1.github.io/traverseWikipedia/)
+
