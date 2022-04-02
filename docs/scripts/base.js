@@ -266,6 +266,10 @@ function pageRoot(page, opt) {
 }
 // draw data on graph
 function drawData(obj) {
+    if (!obj) {
+        log("No data to display!", true, 2000)
+        return
+    }
     // parse raw JSON string
     if (typeof obj === "string") obj = JSON.parse(obj)
     log("Loading graph...")
