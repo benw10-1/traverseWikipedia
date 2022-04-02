@@ -1,7 +1,8 @@
 // declare global variables
 var search, autocomp, loading, Graph, graphEl, logger, logtm, isnt
 // regex for skipping over titles, color scheme for points, and input key ignores respectively
-const titleRegex = /[:]|(Category)|(\.[a-z]+)|([,][0-9])+/
+const titleRegex = /[:]|(Category)|(\.[a-z]+)/
+const redRegex = /(,[0-9],)+/
 const colorScheme = ["#E63946", "#1D3557", "#A8DADC", "#F1FAEE"]
 const keysExp = /(Backspace)|(Escape)|(Control)|\s/
 // async delay function to bottleneck requests
@@ -109,7 +110,7 @@ async function processPageWiki(page, depth=0, maxLinks=500) {
         }
         // find object key and then get then first page returned by the search
         let sl = pages[Object.keys(data.query.pages)[0]]
-        // filter links by title regex predefined 
+        // filter links by title regex predefined
         sl.links = sl.links.filter(e => !e.title.match(titleRegex)).map(e => {
             // format elements for processor loop
             return [e.title, depth + 1, sl.title]
@@ -171,7 +172,9 @@ function pageRoot(page, opt) {
         }
         // if redirect, process page that it points to instead
         if (data.links.length === 1) {
-            data = await processPageWiki(data.links[0])
+            data = await processPageWiki(data.links[0][0])
+            log("Redirected to " + data.title)
+            search.value = data.title
         }
         // queue for top-down traversion
         let toProcess = data.links.slice(0, opt.maxInitial)
