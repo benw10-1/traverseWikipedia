@@ -16,4 +16,4 @@ Search a <strong>Wikipedia</strong> page name in the top search bar and wait for
 -Add NLP relationships (find relationship in link sentence)<br>
 -Make graph more customizable (change depth, max child nodes, colors...)<br>
 ~~-More interactive map and able to search page from map node<br>~~
--Better resolve if link is redirect
+~~-Better resolve if link is redirect~~
