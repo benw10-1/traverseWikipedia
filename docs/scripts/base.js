@@ -191,10 +191,7 @@ function pageRoot(page, opt) {
         // visited for plotting paths and caching discovered nodes
         let visited = {}
         // initial values
-        visited[data.title] = {
-            nodes: [],
-            links: []
-        }
+        visited[data.title] = []
         // while there are items in the queue and there are ongoing requests
         while (toProcess.length > 0 || promises > 0) {
             // if there are over 100 pending promises and there are no links to process, bottleneck
@@ -222,15 +219,16 @@ function pageRoot(page, opt) {
                 nodes.push(node)
                 links.push(link)
                 // mark item as visited
-                visited[item] = {}
+                visited[item] = []
                 // if root has been discovered...
                 if (visited[root]) {
                     // unpack the previous node's path
-                    visited[item].nodes = [node, ...visited[root].nodes]
-                    visited[item].links = [link, ...visited[root].links]
+                    visited[item] = [node, ...visited[root]]
+                    // visited[item].links = [link, ...visited[root].links]
                     // set nodes to highlight, path is derived from highlighted nodes
-                    node.lH = visited[item].links
-                    node.nH = visited[item].nodes
+                    // node.lH = visited[item].links
+                    node.lH = link
+                    node.nH = visited[item]
                 }
             }
             // if it is not a directed graph, add link anyways
@@ -309,9 +307,16 @@ function loadVisual() {
             graphEl.style.cursor = "pointer"
             // add hovered node
             hN.add(node)
+            function linkhelper(n) {
+
+            }
             // add nodes and links in path to highlighted sets
-            node.nH.forEach(n => hN.add(n))
-            node.lH.forEach(l => hL.add(l))
+            node.nH.forEach(n => {
+                hL.add(n.lH)
+                hN.add(n)
+            })
+            // node.nH.forEach(n => hN.add(n))
+            // node.lH.forEach(l => hL.add(l))
         }
         // set hovered node reference
         hoverNode = node || null
