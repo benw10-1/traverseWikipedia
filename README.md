@@ -1,7 +1,7 @@
 # Traverse Wikipeida
 A simple tool for building relational graphs of arbitrary <strong>Wikipedia</strong> pages. Page <strong>X</strong> is related to page <strong>Y</strong> if page <strong>X</strong> has link <strong>Y</strong> in its text. I use the Wikimedia API to get this information.
 
-[Visit the page here!](https://benw10-1.github.io/traverseWikipedia/)
+[Visit the page here!](https://benw.app/traverseWikipedia/)
 ## Usage
 Search a <strong>Wikipedia</strong> page name in the top search bar and wait for the pages to load<br>
 <strong>Hover</strong> over a node to see the path to that node<br>
