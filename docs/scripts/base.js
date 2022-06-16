@@ -86,6 +86,15 @@ function loadEls() {
             isnt.classList.add("hidden")
         }
     })
+    const randomQ = "https://en.wikipedia.org/w/api.php?format=json&action=query&generator=random&grnnamespace=0&grnlimit=1&origin=*"
+    fetch(randomQ).then(res => res.json()).then(data => {
+        // if we get a random article, initialize the graph
+        if (data?.query?.pages) {
+            pageRoot(Object.values(data.query.pages)[0].title).then(data => {
+                drawData(data)
+            })
+        }
+    })
 }
 // query generator for page
 async function processPageWiki(page, depth=0, maxLinks=500) {
